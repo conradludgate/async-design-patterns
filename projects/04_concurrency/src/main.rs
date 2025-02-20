@@ -1,6 +1,6 @@
 use axum::routing::get;
 use errors::AppError;
-use tokio::net::TcpListener;
+use tokio::{net::TcpListener, task::JoinSet};
 
 mod errors;
 mod slow_api;
@@ -24,15 +24,29 @@ async fn http_server() -> anyhow::Result<()> {
 async fn req_handler() -> Result<String, AppError> {
     println!("received http request");
 
-    let mut output = String::new();
-
     let pulls = slow_api::list_pulls().await?;
-    for pull in pulls {
-        use std::fmt::Write;
 
-        let title = slow_api::get_title(pull).await?;
-        writeln!(&mut output, "{pull}: {title}")?;
+    let mut js = JoinSet::<Result<_, anyhow::Error>>::new();
+
+    for (i, pull) in pulls.into_iter().enumerate() {
+        js.spawn(async move {
+            let title = slow_api::get_title(pull).await?;
+            Ok((i, format!("{pull}: {title}\n")))
+        });
     }
 
-    Ok(output)
+    let mut results = vec![];
+    while let Some(res) = js.join_next().await {
+        match res.unwrap() {
+            Ok(r) => results.push(r),
+            Err(e) => {
+                js.abort_all();
+                return Err(e.into());
+            }
+        }
+    }
+    results.sort_by_key(|(id, _)| *id);
+    let results = results.into_iter().map(|(_, s)| s).collect::<Vec<_>>();
+
+    Ok(results.join(""))
 }

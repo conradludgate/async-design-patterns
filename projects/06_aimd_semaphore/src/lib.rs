@@ -22,7 +22,19 @@ struct State {
 impl AimdSemaphore {
     pub fn new(config: AimdConfig) -> Self {
         let aimd = Aimd::new(config);
-        todo!()
+        let notify = Notify::new();
+
+        // need to queue an initial notification.
+        // Notify will store up to 1 available permit.
+        notify.notify_one();
+
+        Self {
+            aimd: Mutex::new(State {
+                acquired: 0,
+                state: aimd,
+            }),
+            notify,
+        }
     }
 
     pub fn success(&self) {
@@ -30,7 +42,11 @@ impl AimdSemaphore {
 
         lock.state.success();
 
-        todo!("check for limit increase")
+        // we might have new permits available.
+        if lock.acquired < lock.state.limit() {
+            // queue a new notification for the next task
+            self.notify.notify_one();
+        }
     }
 
     pub fn failure(&self) {
@@ -49,7 +65,23 @@ impl AimdSemaphore {
     }
 
     pub async fn acquire(&self) -> Permit<'_> {
-        todo!("should be waiting while acquired >= limit")
+        // should be waiting while acquired >= limit
+        loop {
+            // queue up for a notification
+            self.notify.notified().await;
+
+            let mut lock = self.aimd.lock().unwrap();
+            if lock.acquired < lock.state.limit() {
+                // claim a permit
+                lock.acquired += 1;
+
+                // queue a new notification for the next task
+                self.notify.notify_one();
+                break;
+            }
+        }
+
+        Permit { sem: self }
     }
 }
 
@@ -60,7 +92,13 @@ pub struct Permit<'a> {
 
 impl Drop for Permit<'_> {
     fn drop(&mut self) {
-        todo!("release permit back to semaphore")
+        let mut lock = self.sem.aimd.lock().unwrap();
+        lock.acquired -= 1;
+
+        if lock.acquired < lock.state.limit() {
+            // queue a new notification for the next task
+            self.sem.notify.notify_one();
+        }
     }
 }
 

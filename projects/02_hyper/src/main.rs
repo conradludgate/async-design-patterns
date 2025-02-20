@@ -3,7 +3,7 @@ use std::future::Future;
 use anyhow::anyhow;
 use hyper::{body::Incoming, service::service_fn, Request, Response};
 use hyper_util::rt::TokioIo;
-use tokio::net::{TcpListener, TcpStream};
+use tokio::{net::{TcpListener, TcpStream}, signal::ctrl_c};
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {

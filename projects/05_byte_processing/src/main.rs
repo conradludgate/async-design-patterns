@@ -2,7 +2,8 @@
 use axum::{body::Body, routing::get};
 use errors::AppError;
 
-use tokio::net::TcpListener;
+use http_body_util::StreamBody;
+use tokio::{io::simplex, net::TcpListener};
 
 use futures::{SinkExt, TryStreamExt};
 use std::pin::pin;
@@ -39,11 +40,40 @@ async fn req_handler() -> Result<Body, AppError> {
 
     let prs_resp = slow_api::get_prs().await?;
 
-    // TODO:
-    // translate the get_prs response (lines of PrTitle in json)
-    // into lines of String in json,
-    // where each string is `format!("{id}: {title}")`.
-    // Ideally, do so in a streaming fasion.
+    let stream = prs_resp
+        .into_body()
+        // converts Body into Stream<Item = Result<Bytes>>
+        .into_data_stream()
+        .map_err(std::io::Error::other);
 
-    Ok(Body::empty())
+    // convert Stream into AsyncRead
+    let reader = StreamReader::new(stream);
+
+    // A channel but via AsyncRead/Write interface
+    let (rx, tx) = simplex(1024);
+
+    tokio::spawn(async move {
+        // convert AsyncRead into Stream<Item = Result<PrTitle>>
+        let mut framderead = pin!(FramedRead::new(reader, JsonLinesCodec::<PrTitle>::new()));
+
+        // convert AsyncWrite into Sink<String>
+        let mut tx = FramedWrite::new(tx, JsonLinesCodec::<String>::new());
+
+        // recv a PrTitle
+        while let Some(msg) = framderead.as_mut().try_next().await.unwrap() {
+            let PrTitle { id, title } = msg;
+            let out_msg = format!("{id}: {title}");
+            // send our string
+            tx.send(out_msg).await.unwrap();
+        }
+
+        // close our writer
+        tx.close().await.unwrap();
+    });
+
+    // convert an AsyncRead into a Stream<Item = Result<Bytes>>
+    let rx = ReaderStream::new(rx);
+
+    // convert a Stream<Item = Result<Bytes>> into a Body
+    Ok(Body::from_stream(rx))
 }
