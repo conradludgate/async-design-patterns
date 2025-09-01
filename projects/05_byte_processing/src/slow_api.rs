@@ -2,11 +2,11 @@ use std::time::Duration;
 
 use anyhow::bail;
 use axum::{
+    BoxError,
     body::{Body, Bytes},
     http::Response,
-    BoxError,
 };
-use futures::{stream, StreamExt};
+use futures::{StreamExt, stream};
 use serde::{Deserialize, Serialize};
 
 async fn list_pulls() -> anyhow::Result<Vec<u32>> {

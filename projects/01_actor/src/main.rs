@@ -1,4 +1,4 @@
-use p01_actor::{actor_spawn, Actor};
+use p01_actor::{Actor, actor_spawn};
 
 struct Counter {
     count: i64,

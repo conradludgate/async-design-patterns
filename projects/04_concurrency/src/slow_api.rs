@@ -20,7 +20,10 @@ pub async fn get_title(pull: u32) -> anyhow::Result<String> {
         136926 => Ok("Stabilize -Zdwarf-version as -Cdwarf-version".into()),
         136924 => Ok("Add profiling of bootstrap commands using Chrome events".into()),
         136923 => Ok("Lint #[must_use] attributes applied to methods in trait impls".into()),
-        136922 => Ok("Pattern types: Avoid having to handle an Option for range ends in the type system".into()),
+        136922 => Ok(
+            "Pattern types: Avoid having to handle an Option for range ends in the type system"
+                .into(),
+        ),
         136921 => Ok("Build GCC on CI".into()),
         136918 => Ok("Rollup of 8 pull requests".into()),
         136916 => Ok("use cc archiver as default in cc2ar".into()),

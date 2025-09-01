@@ -1,7 +1,7 @@
 use std::future::Future;
 
 use anyhow::anyhow;
-use hyper::{body::Incoming, service::service_fn, Request, Response};
+use hyper::{Request, Response, body::Incoming, service::service_fn};
 use hyper_util::rt::TokioIo;
 use tokio::net::{TcpListener, TcpStream};
 

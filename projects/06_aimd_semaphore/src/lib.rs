@@ -1,3 +1,4 @@
+#![allow(dead_code, unused_variables)]
 use std::sync::Mutex;
 
 use aimd::{Aimd, AimdConfig};
@@ -68,7 +69,7 @@ impl Drop for Permit<'_> {
 mod tests {
     use std::time::Duration;
 
-    use crate::{aimd::AimdConfig, AimdSemaphore};
+    use crate::{AimdSemaphore, aimd::AimdConfig};
 
     #[tokio::test]
     async fn check() {
