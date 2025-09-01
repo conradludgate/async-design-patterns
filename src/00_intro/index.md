@@ -5,12 +5,12 @@ Understanding async design patterns and primitives
 ## Who am I
 
 * Conrad Ludgate (he/him) - <https://conradludgate.com/>
-* I do Rust systems programming at Neon, we host Postgres with extra features - <https://neon.tech/>
+* I do Rust systems programming at Neon (Databricks), we host Postgres with extra features - <https://neon.tech/>
 * I really like async Rust.
 
 ## Where are the files?
 
-<https://github.com/conradludgate/rnuk25-async-workshop>
+<https://github.com/conradludgate/async-design-patterns>
 
 ## Where are the docs?
 

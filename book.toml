@@ -3,4 +3,4 @@ authors = ["Conrad Ludgate"]
 language = "en"
 multilingual = false
 src = "src"
-title = "RustNationUK Async Workshop"
+title = "Async Design Patterns"

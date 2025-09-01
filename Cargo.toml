@@ -3,5 +3,5 @@ resolver = "2"
 members = ["projects/*"]
 
 [workspace.package]
-edition = "2021"
+edition = "2024"
 license = "Apache-2.0 OR MIT"

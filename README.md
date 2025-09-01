@@ -1,3 +1,3 @@
-# RustNationUK 2025 Workshop: Async
+# Workshop: Async Design Patterns
 
 <https://async-patterns.conrad.cafe>
