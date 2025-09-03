@@ -1,11 +1,14 @@
 #![allow(unused)]
+use anyhow::Context;
 use axum::{body::Body, routing::get};
 use errors::AppError;
 
+use http_body_util::BodyExt;
+use serde_json::Deserializer;
 use tokio::net::TcpListener;
 
 use futures::{SinkExt, TryStreamExt};
-use std::pin::pin;
+use std::{io::BufRead, pin::pin};
 use tokio_util::{
     codec::{FramedRead, FramedWrite},
     io::{ReaderStream, StreamReader},
@@ -40,10 +43,18 @@ async fn req_handler() -> Result<Body, AppError> {
     let prs_resp = slow_api::get_prs().await?;
 
     // TODO:
-    // translate the get_prs response (lines of PrTitle in json)
-    // into lines of String in json,
-    // where each string is `format!("{id}: {title}")`.
-    // Ideally, do so in a streaming fasion.
+    // This currently waits until the full response is loaded from slow_api::get_prs.
+    // Can we stream out the responses instead?
 
-    Ok(Body::empty())
+    let data = prs_resp.into_body().collect().await?.to_bytes();
+
+    let mut output = String::new();
+    for pr_title in data.lines() {
+        let pr_title = pr_title.context("missing full json line")?;
+        let PrTitle { id, title } = serde_json::from_str(&pr_title)?;
+
+        output += &format!("{id}: {title}\n");
+    }
+
+    Ok(Body::new(output))
 }
