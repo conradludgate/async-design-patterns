@@ -27,6 +27,6 @@ let handler = service_fn(|req| async {
 
     // if the task completed, there's nothing to cancel
     guard.disarm();
-})
+});
 ```
 

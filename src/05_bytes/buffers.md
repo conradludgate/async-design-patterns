@@ -47,7 +47,7 @@ let mut buffer = vec![0; 1024*1024];
 // read into our buffer
 let n = stream.read(&mut buffer).await?;
 
-// actullay available data
+// actually available data
 let data = &buffer[..n];
 ```
 

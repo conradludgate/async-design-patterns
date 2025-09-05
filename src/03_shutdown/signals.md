@@ -17,4 +17,4 @@ sigterm.recv()
 
 ---
 
-Windows also has an alternative to SIGTERM, `tokio::signal::windows::crtl_shutdown()`
+Windows also has an alternative to SIGTERM, `tokio::signal::windows::ctrl_shutdown()`

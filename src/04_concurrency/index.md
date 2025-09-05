@@ -35,7 +35,7 @@ for item in items {
 
 drop(tx);
 
-let mut responses = vec![]
+let mut responses = vec![];
 while let Some(resp) = rx.recv().await {
     responses.push(resp);
 }
@@ -54,7 +54,7 @@ for item in items {
     });
 }
 
-let mut responses = vec![]
+let mut responses = vec![];
 while let Some(resp) = joinset.join_next().await.unwrap() {
     responses.push(resp);
 }
@@ -78,7 +78,7 @@ for item in items {
     futures.push(async move { handle(item).await });
 }
 
-let mut responses = vec![]
+let mut responses = vec![];
 while let Some(resp) = futures.next().await {
     responses.push(resp);
 }
