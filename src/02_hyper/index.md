@@ -1,7 +1,7 @@
 # Chapter 2 - Actors between the lines
 
 As I said in the last chapter, you can think of most tokio tasks as being an actor.
-I'm not super opinionated on "communitcate via shared-memory" or "share memory via communication" camp.
+I'm not super opinionated on "communicate via shared-memory" or "share memory via communication" camp.
 I say share memory if it makes your program more efficient. However, if you think about it,
 all tasks own some state, which is mutated when it receives some order of external influences.
 

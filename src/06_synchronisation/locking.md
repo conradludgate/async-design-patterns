@@ -2,7 +2,7 @@
 
 All the way at the beginning of this workshop, I brought up that I'm not a purist on "share memory to communicate" or
 "communicate to share memory". I would prefer to use whatever the right abstraction is for the task at hand.
-A well beaten drum is that channels are usually implemented via shared ring-buffers. The underlying implemntation is
+A well beaten drum is that channels are usually implemented via shared ring-buffers. The underlying implementation is
 not important, but the abstraction you present is.
 
 So why am I about to tell you that async Mutex/RwLock's are evil and should never be used?

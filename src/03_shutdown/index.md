@@ -95,18 +95,18 @@ loop {
             let (stream, _addr) = res?;
             // it might be sensible to also forward
             // a child cancellation token to the connection
-            tokio::spawn(conn_handler(stream, token.child()));
+            tokio::spawn(conn_handler(stream, token.child_token()));
         }
     }
 }
 ```
 
-There's a slightly cleaner implemntation of the accept loop we can use now, thanks to a helper method by `CancellationToken`.
+There's a slightly cleaner implementation of the accept loop we can use now, thanks to a helper method by `CancellationToken`.
 
 ```rust
 while let Some(res) = token.run_until_cancelled(listener.accept()).await {
     let (stream, _addr) = res?;
-    tokio::spawn(conn_handler(stream, token.child()));
+    tokio::spawn(conn_handler(stream, token.child_token()));
 }
 ```
 
@@ -127,7 +127,7 @@ let tracker = TaskTracker::new();
 while let Some(res) = token.run_until_cancelled(listener.accept()).await {
     let (stream, _addr) = res?;
     // spawn and track the task
-    tracker.spawn(conn_handler(stream, token.child()));
+    tracker.spawn(conn_handler(stream, token.child_token()));
 }
 
 // no more tasks will be spawned.
